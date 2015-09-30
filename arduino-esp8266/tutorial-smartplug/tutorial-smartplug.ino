@@ -44,11 +44,16 @@ void msghandler(char *topic, uint8_t* msg, unsigned int msglen) {
   }
 }
 
+void onConnected(char *attribute, uint8_t* msg, unsigned int msglen) {
+  Serial.println("Connected to NETPIE...");
+  microgear.setName("pieplug");
+}
 
 void setup() {
   Serial.begin(115200);
 
   Serial.println("Starting...");
+  microgear.on(CONNECTED,onConnected);
 
   pinMode(relayPin, OUTPUT);
 
@@ -69,7 +74,6 @@ void setup() {
     microgear.resetToken();
     microgear.init(GEARKEY, GEARSECRET, SCOPE);
     microgear.connect(APPID);
-    microgear.setName("piesensor");
   }
 }
 
@@ -80,7 +84,6 @@ void loop() {
   } else {
     Serial.println("connection lost, reconnect...");
     microgear.connect(APPID);
-    microgear.setName("pieplug");
   }
   delay(1000);
 }
