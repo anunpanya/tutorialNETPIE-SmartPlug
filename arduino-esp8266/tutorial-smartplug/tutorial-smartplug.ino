@@ -1,11 +1,10 @@
 #include <AuthClient.h>
 #include <MicroGear.h>
+#include <MQTTClient.h>
+#include <SHA1.h>
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 #include <EEPROM.h>
-#include <math.h>
 
 const char* ssid     = "WIFI_SSID";
 const char* password = "WIFI_KEY";
@@ -22,7 +21,7 @@ int relayPin = 5;
 
 MicroGear microgear(client);
 
-void msghandler(char *topic, uint8_t* msg, unsigned int msglen) {
+void onMsghandler(char *topic, uint8_t* msg, unsigned int msglen) {
   Serial.print("Incoming message --> ");
   Serial.print(topic);
   Serial.print(" : ");
@@ -53,11 +52,11 @@ void setup() {
   Serial.begin(115200);
 
   Serial.println("Starting...");
-  microgear.on(CONNECTED,onConnected);
 
   pinMode(relayPin, OUTPUT);
 
-  microgear.on(MESSAGE, msghandler);
+  microgear.on(MESSAGE,onMsghandler);
+  microgear.on(CONNECTED,onConnected);
 
   if (WiFi.begin(ssid, password)) {
 
@@ -80,6 +79,7 @@ void setup() {
 
 void loop() {
   if (microgear.connected()) {
+    microgear.loop();
     Serial.println("connect...");
   } else {
     Serial.println("connection lost, reconnect...");
